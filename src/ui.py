@@ -15,14 +15,16 @@ nodes = [
 ]
 
 
-def drawNodes():
+def drawNodes(animate):
     pygame.draw.circle(screen, "green", nodes[0], 16, 4)
-    shift = frame_counter % MAX_FPS * 1.9
+    phase = 100
+    if animate:
+        phase = frame_counter / MAX_FPS * 360
     for i in range(1, len(nodes)):
         pygame.draw.circle(screen, "green", nodes[i], 16, 4)
-        drawDashedLine(screen, "green", nodes[i-1], nodes[i], 1, 20, 1, 16, shift)
+        drawDashedLine(screen, "green", nodes[i-1], nodes[i], 1, 20, 1, 16, phase)
 
-def drawDashedLine(surface, color, start_pos, end_pos, width=1, size=1, spacing=1, margin=0, shift=0):
+def drawDashedLine(surface, color, start_pos, end_pos, width=1, size=1, spacing=1, margin=0, phase=0):
     direction = subtract_vectors(end_pos, start_pos)
     normalized_direction = normalize_vector(direction)
 
@@ -30,25 +32,34 @@ def drawDashedLine(surface, color, start_pos, end_pos, width=1, size=1, spacing=
     start_pos = add_vectors(start_pos, marginalized_direction)
     end_pos = subtract_vectors(end_pos, marginalized_direction)
 
-    shifted_direction = scale_vector(normalized_direction, shift)
-    start_pos = add_vectors(start_pos, shifted_direction)
+    phase %= 360
+    phase /= 360
 
     direction = subtract_vectors(end_pos, start_pos)
 
     scaled_direction = scale_vector(normalized_direction, size)
     scaled_spacing = scale_vector(scaled_direction, spacing)
 
-    total_length = vector_length(direction)
-    dashes_in_line = int(total_length / (size + size * spacing))
-
     distance = add_vectors(scaled_direction, scaled_spacing)
-    line_start = start_pos
-    for i in range(0, dashes_in_line):
+    line_start = add_vectors(start_pos, scale_vector(distance, phase))
+
+    line_end = subtract_vectors(line_start, scaled_spacing)
+    if not direction_changed(subtract_vectors(line_end, start_pos), direction):
+        pygame.draw.line(surface, color, start_pos, line_end, width)
+
+    while not direction_changed(subtract_vectors(end_pos, line_start), direction):
         line_end = add_vectors(line_start, scaled_direction)
+        if direction_changed(subtract_vectors(end_pos, line_end), direction):
+            line_end = end_pos
         pygame.draw.line(surface, color, line_start, line_end, width)
         line_start = add_vectors(line_start, distance)
 
-    pygame.draw.line(surface, color, line_start, end_pos, width)
+def direction_changed(direction1, direction2):
+    for i in range(len(direction1)):
+        if direction1[i] * direction2[i] < 0:
+            return True
+    return False
+        
 
 def normalize_vector(vector):
     length = vector_length(vector)
@@ -100,10 +111,10 @@ while running:
 
     
     frame_counter += 1
-    if frame_counter > MAX_FPS:
+    if frame_counter >= MAX_FPS:
         frame_counter = 0
 
-    drawNodes()
+    drawNodes(True)
 
     pygame.display.flip()
     screen.fill("black")
