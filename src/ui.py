@@ -19,7 +19,7 @@ nodes = []
 
 right_shift = 0
 up_shift = 0
-scale = SCREEN_WIDTH
+scale = SCREEN_HEIGHT
 
 def shift_nodes(nodes):
     global right_shift, up_shift
@@ -89,8 +89,8 @@ def reshift_nodes(new_right_shift, new_up_shift):
 def scale_nodes(nodes):
     global scale
 
-    largest_x = 0
-    largest_y = 0
+    largest_x = 1
+    largest_y = 1
     for node in nodes:
         x, y = node[0], node[1]
         if x > largest_x:
