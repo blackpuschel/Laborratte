@@ -177,12 +177,12 @@ thread.start()
                     
 CIRCLE_SIZE = 16
 LINE_SPACING = 20
-def drawNodes(animate):
+def draw_nodes(animate):
     nodes_copy = nodes.copy()
     if len(nodes_copy) <= 0:
         return
     
-    pygame.draw.circle(screen, "green", nodes_copy[0], CIRCLE_SIZE, 4)
+    pygame.draw.circle(screen, "red", nodes_copy[0], CIRCLE_SIZE, 4)
     phase = 100
     if animate:
         phase = frame_counter / MAX_FPS * 360
@@ -196,9 +196,9 @@ def drawNodes(animate):
         if not circles_touchin and circles_to_close:
             pygame.draw.line(screen, "green", nodes_copy[i-1], nodes_copy[i], 1)
         elif not circles_touchin:
-            drawDashedLine(screen, "green", nodes_copy[i-1], nodes_copy[i], 1, LINE_SPACING, 1, 16, phase)
+            draw_dashed_line(screen, "green", nodes_copy[i-1], nodes_copy[i], 1, LINE_SPACING, 1, 16, phase)
 
-def drawDashedLine(surface, color, start_pos, end_pos, width=1, size=1, spacing=1, margin=0, phase=0):
+def draw_dashed_line(surface, color, start_pos, end_pos, width=1, size=1, spacing=1, margin=0, phase=0):
     direction = subtract_vectors(end_pos, start_pos)
     normalized_direction = normalize_vector(direction)
 
@@ -277,6 +277,10 @@ def vector_length(vector):
 
     return sqrt(sum)
 
+################################################################################
+#####                       Render Loop for Screen                         #####
+################################################################################
+
 running = True
 while running:
     for event in pygame.event.get():
@@ -288,7 +292,7 @@ while running:
     if frame_counter >= MAX_FPS:
         frame_counter = 0
 
-    drawNodes(True)
+    draw_nodes(True)
 
     pygame.display.flip()
     screen.fill("black")
